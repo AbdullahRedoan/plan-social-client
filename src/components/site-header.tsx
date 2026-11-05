@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HeartHandshake, Menu, Moon, Sun, X } from "lucide-react";
@@ -64,14 +64,29 @@ function MobileNav({ onNavigate }: { onNavigate: () => void }) {
   return <NavItems pathname={pathname} variant="mobile" onNavigate={onNavigate} />;
 }
 
+function subscribeToTheme(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+  return () => observer.disconnect();
+}
+
+function useIsDark() {
+  return useSyncExternalStore(
+    subscribeToTheme,
+    () => document.documentElement.classList.contains("dark"),
+    () => false,
+  );
+}
+
 export function SiteHeader() {
-  const [dark, setDark] = useState(false);
+  const dark = useIsDark();
   const [menuOpen, setMenuOpen] = useState(false);
 
   function toggleTheme() {
-    const next = !dark;
-    document.documentElement.classList.toggle("dark", next);
-    setDark(next);
+    document.documentElement.classList.toggle("dark", !dark);
   }
 
   const closeMenu = () => setMenuOpen(false);
