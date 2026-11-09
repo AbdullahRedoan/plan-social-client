@@ -39,7 +39,7 @@ export function SiteFooter() {
             and personal.
           </p>
           <p className="mt-8 text-xs text-[#91aaa0]">
-            © 2024 PlanSocial. Made for better places.
+            © 2026 PlanSocial. Made for better places.
           </p>
         </div>
 

@@ -97,7 +97,7 @@ export default function HomePage() {
               <div className="flex items-start justify-between">
                 <Globe2 className="text-[#eab19c]" />
                 <span className="rounded-full bg-[#435b54] px-2.5 py-1 text-[11px] font-bold">
-                  2024 impact
+                  Community impact
                 </span>
               </div>
               <p className="mt-12 text-6xl font-black tracking-tight">
