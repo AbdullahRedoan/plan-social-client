@@ -1,16 +1,36 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarDays, MapPin, Pencil, Users } from "lucide-react";
+import { Plus } from "lucide-react";
+import { ManageEventsList } from "@/components/manage-events-list";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { categoryStyles, events } from "@/lib/events";
-import { cn } from "@/lib/utils";
+import { eventsApi } from "@/lib/api";
+import type { CommunityEvent } from "@/lib/events";
+import { getTokenFromServer, requireSession } from "@/lib/session";
+
+export const instant = false;
 
 export const metadata: Metadata = {
   title: "Manage events",
 };
 
-export default function ManageEventsPage() {
+export default async function ManageEventsPage() {
+  await requireSession("/manage-events");
+  const token = await getTokenFromServer();
+
+  let events: CommunityEvent[] = [];
+  let loadFailed = false;
+
+  if (token) {
+    try {
+      events = await eventsApi.mine(token);
+    } catch {
+      loadFailed = true;
+    }
+  } else {
+    loadFailed = true;
+  }
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
@@ -23,72 +43,34 @@ export default function ManageEventsPage() {
               Your <em>events.</em>
             </h1>
             <p className="mt-4 max-w-xl text-base text-muted-foreground">
-              Everything you have published, in one place. Editing and deletion
-              will be wired up with the API.
+              Everything you have published, in one place. Edit the details or
+              remove an event whenever plans change.
             </p>
           </div>
           <Link
             href="/create-event"
-            className="w-fit rounded-lg bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-[3px_3px_0_var(--foreground)] transition hover:opacity-90"
+            className="flex w-fit items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-[3px_3px_0_var(--foreground)] transition hover:opacity-90"
           >
-            Create event
+            <Plus size={16} /> Create event
           </Link>
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {events.map((event) => (
-            <article
-              key={event.slug}
-              className="soft-card flex flex-col rounded-xl bg-card p-6"
+        {loadFailed ? (
+          <div className="soft-card mt-10 rounded-xl bg-card p-10 text-center">
+            <p className="text-lg font-black">We couldn&apos;t load your events.</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Your session may have expired. Log in again to manage your events.
+            </p>
+            <Link
+              href="/login?next=%2Fmanage-events"
+              className="mt-5 inline-flex font-bold text-primary underline underline-offset-4"
             >
-              <div className="flex items-start justify-between gap-3">
-                <span
-                  className={cn(
-                    "rounded-md px-2.5 py-1 text-[11px] font-black uppercase tracking-wider",
-                    categoryStyles[event.category],
-                  )}
-                >
-                  {event.category}
-                </span>
-                <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-bold text-muted-foreground">
-                  Published
-                </span>
-              </div>
-
-              <h2 className="mt-4 text-lg font-bold leading-snug">
-                {event.title}
-              </h2>
-
-              <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-                <CalendarDays size={15} className="text-primary" />
-                {event.date} · {event.time}
-              </p>
-              <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin size={15} className="text-primary" />
-                {event.location}
-              </p>
-              <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                <Users size={15} className="text-primary" />
-                {event.attendees} joining
-              </p>
-
-              <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
-                <Link
-                  href={`/events/${event.slug}`}
-                  className="text-sm font-bold text-primary"
-                >
-                  View event
-                </Link>
-                <button
-                  type="button"
-                  className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground transition hover:text-foreground"
-                >
-                  <Pencil size={14} /> Edit
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
+              Log in again
+            </Link>
+          </div>
+        ) : (
+          <ManageEventsList initialEvents={events} />
+        )}
       </main>
 
       <SiteFooter />
