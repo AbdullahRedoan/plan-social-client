@@ -2,32 +2,82 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Check, Eye, EyeOff } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
+
+function safeNext(value: string | null) {
+  return value && value.startsWith("/") ? value : "/events";
+}
 
 export function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = safeNext(searchParams.get("next"));
   const [showPassword, setShowPassword] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [socialPending, setSocialPending] = useState<"google" | "github" | null>(
+    null,
+  );
 
-  if (submitted) {
-    return (
-      <div className="mt-8 flex flex-col items-start gap-3">
-        <span className="grid size-11 place-items-center rounded-full bg-primary/10 text-primary">
-          <Check size={20} />
-        </span>
-        <p className="text-lg font-black">You&apos;re signed in.</p>
-        <p className="text-sm text-muted-foreground">
-          Authentication is not connected yet — this is a UI preview.
-        </p>
-        <Button
-          render={<Link href="/events" />}
-          className="mt-2 h-11 px-5 font-bold"
-        >
-          Browse events <ArrowRight size={16} />
-        </Button>
-      </div>
-    );
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get("email") ?? "").trim();
+    const password = String(formData.get("password") ?? "");
+    const rememberMe = formData.get("rememberMe") === "on";
+
+    if (!email || !password) {
+      toast.error("Enter your email and password.");
+      return;
+    }
+
+    setPending(true);
+
+    try {
+      const { error } = await authClient.signIn.email({
+        email,
+        password,
+        rememberMe,
+      });
+
+      if (error) {
+        toast.error(
+          error.message ?? "Could not log in with those credentials.",
+        );
+        return;
+      }
+
+      toast.success("Welcome back!");
+      router.push(next);
+      router.refresh();
+    } catch {
+      toast.error("Could not log in right now. Please try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function handleSocial(provider: "google" | "github") {
+    setSocialPending(provider);
+
+    try {
+      const { error } = await authClient.signIn.social({
+        provider,
+        callbackURL: next,
+      });
+
+      if (error) {
+        toast.error(error.message ?? `Could not continue with ${provider}.`);
+      }
+    } catch {
+      toast.error(`Could not continue with ${provider}.`);
+    } finally {
+      setSocialPending(null);
+    }
   }
 
   return (
@@ -36,16 +86,30 @@ export function LoginForm() {
         <Button
           type="button"
           variant="outline"
-          className="h-11 justify-center gap-2"
+          onClick={() => handleSocial("google")}
+          disabled={socialPending !== null || pending}
+          className="h-11 justify-center gap-2 font-bold"
         >
-          <span className="font-black">G</span> Continue with Google
+          {socialPending === "google" ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <span className="font-black">G</span>
+          )}
+          Continue with Google
         </Button>
         <Button
           type="button"
           variant="outline"
-          className="h-11 justify-center gap-2"
+          onClick={() => handleSocial("github")}
+          disabled={socialPending !== null || pending}
+          className="h-11 justify-center gap-2 font-bold"
         >
-          <span className="font-black">GH</span> GitHub
+          {socialPending === "github" ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <span className="font-black">GH</span>
+          )}
+          GitHub
         </Button>
       </div>
 
@@ -55,21 +119,17 @@ export function LoginForm() {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <form
-        className="grid gap-5"
-        onSubmit={(event) => {
-          event.preventDefault();
-          setSubmitted(true);
-        }}
-      >
+      <form className="grid gap-5" onSubmit={handleSubmit} noValidate>
         <div className="grid gap-2">
           <label className="text-sm font-bold" htmlFor="login-email">
             Email address
           </label>
           <Input
             id="login-email"
+            name="email"
             type="email"
             required
+            autoComplete="email"
             placeholder="you@example.com"
             className="h-11"
           />
@@ -82,8 +142,10 @@ export function LoginForm() {
           <span className="relative">
             <Input
               id="login-password"
+              name="password"
               type={showPassword ? "text" : "password"}
               required
+              autoComplete="current-password"
               placeholder="Enter your password"
               className="h-11 pr-11"
             />
@@ -100,16 +162,36 @@ export function LoginForm() {
 
         <div className="flex items-center justify-between text-sm">
           <label className="flex items-center gap-2 font-semibold">
-            <input type="checkbox" className="size-4 accent-primary" />
+            <input
+              type="checkbox"
+              name="rememberMe"
+              defaultChecked
+              className="size-4 accent-primary"
+            />
             Remember me
           </label>
-          <button type="button" className="font-bold text-primary hover:underline">
-            Forgot password?
-          </button>
+          <Link
+            href="/register"
+            className="font-bold text-primary hover:underline"
+          >
+            Need an account?
+          </Link>
         </div>
 
-        <Button type="submit" className="h-11 w-full font-bold">
-          Log in <ArrowRight size={16} />
+        <Button
+          type="submit"
+          disabled={pending}
+          className="h-11 w-full font-bold"
+        >
+          {pending ? (
+            <>
+              <Loader2 size={16} className="animate-spin" /> Logging in…
+            </>
+          ) : (
+            <>
+              Log in <ArrowRight size={16} />
+            </>
+          )}
         </Button>
       </form>
     </>

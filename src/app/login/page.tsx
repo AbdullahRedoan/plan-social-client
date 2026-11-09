@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LoginForm } from "@/components/login-form";
@@ -37,7 +38,17 @@ export default function LoginPage() {
               Log in to see what your community is planning.
             </p>
 
-            <LoginForm />
+            <Suspense
+              fallback={
+                <div className="mt-8 grid gap-3">
+                  <div className="h-11 animate-pulse rounded-lg bg-muted" />
+                  <div className="h-11 animate-pulse rounded-lg bg-muted" />
+                  <div className="h-11 animate-pulse rounded-lg bg-muted" />
+                </div>
+              }
+            >
+              <LoginForm />
+            </Suspense>
 
             <p className="mt-7 text-center text-sm text-muted-foreground">
               New to PlanSocial?{" "}

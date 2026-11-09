@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RegisterForm } from "@/components/register-form";
@@ -24,7 +25,17 @@ export default function RegisterPage() {
               Start finding and organizing good things near you.
             </p>
 
-            <RegisterForm />
+            <Suspense
+              fallback={
+                <div className="mt-8 grid gap-3">
+                  <div className="h-11 animate-pulse rounded-lg bg-muted" />
+                  <div className="h-11 animate-pulse rounded-lg bg-muted" />
+                  <div className="h-11 animate-pulse rounded-lg bg-muted" />
+                </div>
+              }
+            >
+              <RegisterForm />
+            </Suspense>
 
             <p className="mt-7 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
