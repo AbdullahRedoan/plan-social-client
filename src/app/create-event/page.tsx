@@ -2,12 +2,17 @@ import type { Metadata } from "next";
 import { CreateEventForm } from "@/components/create-event-form";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { requireSession } from "@/lib/session";
+
+export const instant = false;
 
 export const metadata: Metadata = {
   title: "Create an event",
 };
 
-export default function CreateEventPage() {
+export default async function CreateEventPage() {
+  await requireSession("/create-event");
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
@@ -19,7 +24,7 @@ export default function CreateEventPage() {
         </h1>
         <p className="mt-4 max-w-xl text-base text-muted-foreground">
           Give your neighbors something good to show up for. You can edit the
-          details any time before publishing.
+          details any time from your organizer dashboard.
         </p>
 
         <div className="mt-10">
