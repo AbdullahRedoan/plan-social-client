@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -10,11 +11,13 @@ import {
   TreePine,
   Users,
 } from "lucide-react";
+import { HomeEventsSkeleton } from "@/components/event-skeletons";
 import { HomeEvents } from "@/components/home-events";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { galleryImages } from "@/lib/events";
+import { eventsApi } from "@/lib/api";
+import { galleryImages, type CommunityEvent } from "@/lib/events";
 
 const reasons = [
   {
@@ -36,6 +39,18 @@ const reasons = [
     tone: "light",
   },
 ] as const;
+
+async function RecentEvents() {
+  let events: CommunityEvent[] = [];
+
+  try {
+    events = await eventsApi.list(6);
+  } catch {
+    events = [];
+  }
+
+  return <HomeEvents events={events} />;
+}
 
 export default function HomePage() {
   return (
@@ -162,7 +177,9 @@ export default function HomePage() {
         </section>
 
         <section id="events" className="mx-auto max-w-7xl px-5 py-14 lg:px-8">
-          <HomeEvents />
+          <Suspense fallback={<HomeEventsSkeleton />}>
+            <RecentEvents />
+          </Suspense>
         </section>
 
         <section id="gallery" className="mx-auto max-w-7xl px-5 py-14 lg:px-8">

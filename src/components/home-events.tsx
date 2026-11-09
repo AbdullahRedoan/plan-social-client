@@ -4,9 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
 import { EventCard } from "@/components/event-card";
-import { events } from "@/lib/events";
+import type { CommunityEvent } from "@/lib/events";
 
-export function HomeEvents() {
+export function HomeEvents({ events }: { events: CommunityEvent[] }) {
   const [query, setQuery] = useState("");
 
   const filtered = events.filter((event) =>
@@ -41,12 +41,28 @@ export function HomeEvents() {
       {filtered.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((event) => (
-            <EventCard key={event.slug} event={event} />
+            <EventCard key={event.id} event={event} />
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-border p-10 text-center text-muted-foreground">
-          No events found.
+        <div className="soft-card rounded-xl bg-card p-10 text-center">
+          <p className="text-lg font-black">
+            {events.length === 0
+              ? "No upcoming events yet."
+              : "No events match your search."}
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {events.length === 0
+              ? "Be the first to give your neighbors something to show up for."
+              : "Try a different title or place."}
+          </p>
+          <Link
+            href={events.length === 0 ? "/create-event" : "/events"}
+            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition hover:opacity-90"
+          >
+            {events.length === 0 ? "Create an event" : "Browse all events"}
+            <ArrowRight size={16} />
+          </Link>
         </div>
       )}
 

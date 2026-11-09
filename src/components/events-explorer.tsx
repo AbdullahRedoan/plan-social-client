@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
 import { EventCard } from "@/components/event-card";
-import { eventCategories, events } from "@/lib/events";
+import { eventCategories, type CommunityEvent } from "@/lib/events";
 
 const PAGE_SIZE = 6;
 const ALL_CATEGORIES = "All categories";
 
-export function EventsExplorer() {
+export function EventsExplorer({ events }: { events: CommunityEvent[] }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState(ALL_CATEGORIES);
   const [page, setPage] = useState(1);
@@ -86,23 +86,33 @@ export function EventsExplorer() {
       {visible.length > 0 ? (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {visible.map((event) => (
-            <EventCard key={event.slug} event={event} showAttendees />
+            <EventCard key={event.id} event={event} showAttendees />
           ))}
         </div>
       ) : (
         <div className="soft-card rounded-xl bg-card p-12 text-center">
-          <p className="text-lg font-black">No events match those filters.</p>
-          <button
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setCategory(ALL_CATEGORIES);
-              resetToFirstPage();
-            }}
-            className="mt-3 font-bold text-primary underline underline-offset-4"
-          >
-            Clear filters
-          </button>
+          <p className="text-lg font-black">
+            {events.length === 0
+              ? "No upcoming events yet."
+              : "No events match those filters."}
+          </p>
+          {events.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              Check back soon, or host the first one yourself.
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setCategory(ALL_CATEGORIES);
+                resetToFirstPage();
+              }}
+              className="mt-3 font-bold text-primary underline underline-offset-4"
+            >
+              Clear filters
+            </button>
+          )}
         </div>
       )}
 
