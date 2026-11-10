@@ -15,7 +15,6 @@ import {
   CalendarPlus,
   CalendarRange,
   ChevronDown,
-  HeartHandshake,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -25,6 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { BrandMark } from "@/components/brand-mark";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
@@ -442,9 +442,7 @@ export function SiteHeader() {
           href="/"
           className="flex items-center gap-2.5 text-lg font-black tracking-tight"
         >
-          <span className="grid size-9 rotate-[-4deg] place-items-center rounded-lg bg-primary text-primary-foreground shadow-[3px_3px_0_var(--foreground)]">
-            <HeartHandshake size={18} />
-          </span>
+          <BrandMark />
           Plan<span className="text-primary">Social</span>
         </Link>
 

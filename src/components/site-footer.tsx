@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { Camera, HeartHandshake, Mail } from "lucide-react";
+import { Camera, Mail } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
+
+const CONTACT_EMAIL = "abdullahredoanarb@gmail.com";
+const GMAIL_COMPOSE_URL = `https://mail.google.com/mail/?view=cm&fs=1&to=${CONTACT_EMAIL}`;
 
 const columns = [
   {
@@ -29,9 +33,7 @@ export function SiteFooter() {
             href="/"
             className="flex items-center gap-2.5 text-lg font-black tracking-tight"
           >
-            <span className="grid size-9 place-items-center rounded-lg bg-[#eab19c] text-[#283936]">
-              <HeartHandshake size={18} />
-            </span>
+            <BrandMark />
             PlanSocial
           </Link>
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-[#bfd0c8]">
@@ -62,7 +64,7 @@ export function SiteFooter() {
 
         <div>
           <p className="footer-heading">Say hello</p>
-          <p className="text-sm text-[#bfd0c8]">hello@plansocial.co</p>
+          <p className="break-words text-sm text-[#bfd0c8]">{CONTACT_EMAIL}</p>
           <div className="mt-4 flex gap-2">
             <a
               href="#"
@@ -72,8 +74,10 @@ export function SiteFooter() {
               <Camera size={16} />
             </a>
             <a
-              href="mailto:hello@plansocial.co"
-              aria-label="Email PlanSocial"
+              href={GMAIL_COMPOSE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Compose an email to ${CONTACT_EMAIL}`}
               className="grid size-9 place-items-center rounded-lg border border-[#526962] transition hover:bg-[#40574f]"
             >
               <Mail size={16} />
