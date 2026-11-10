@@ -21,11 +21,7 @@ export const metadata: Metadata = {
   description:
     "Discover local community events and make a meaningful impact together.",
   icons: {
-    icon: [
-      { url: "/icon-light-32x32.png", media: "(prefers-color-scheme: light)" },
-      { url: "/icon-dark-32x32.png", media: "(prefers-color-scheme: dark)" },
-      { url: "/icon.svg", type: "image/svg+xml" },
-    ],
+    icon: "/icon.svg",
     apple: "/apple-icon.png",
   },
 };
