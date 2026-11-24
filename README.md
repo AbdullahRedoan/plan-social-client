@@ -1,12 +1,12 @@
-# PlanSocial
+[# PlanSocial
 
 **PlanSocial** is a community event platform where neighbors discover local
 volunteer drives, host their own events, and keep track of everything they have
 joined.
 
-- **Live site:** `<add-your-deployed-url-here>` <!-- e.g. https://plan-social.vercel.app -->
+- **Live site:** `https://plan-social.vercel.app/
 - **Local site:** http://localhost:3000
-- **API:** [plan-social-server](https://github.com/AbdullahRedoan/plan-social-server) (Express 5 + MongoDB)
+- **API:**(https://plan-social-backend.vercel.app/)(https://github.com/AbdullahRedoan/plan-social-server) (Express 5 + MongoDB)
 
 ## Features
 
